@@ -1,20 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Copy, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, Copy, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const PRESET_QUANTITIES = [49, 100, 200, 250];
 const WEBHOOK_URL = "https://editor.vexly.com.br/webhook/4c7618c6-fee9-44c3-8cd4-ddc39fde9e54";
 
-const WebhookForm = () => {
-  const [conjuntoId, setConjuntoId] = useState("");
+interface WebhookFormProps {
+  initialAdSetId?: string;
+  onBack?: () => void;
+}
+
+export function WebhookForm({ initialAdSetId, onBack }: WebhookFormProps) {
+  const [conjuntoId, setConjuntoId] = useState(initialAdSetId || "");
   const [quantity, setQuantity] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (initialAdSetId) {
+      setConjuntoId(initialAdSetId);
+    }
+  }, [initialAdSetId]);
 
   const handlePresetClick = (value: number) => {
     setQuantity(value.toString());
@@ -112,86 +123,97 @@ const WebhookForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-lg shadow-xl border-0 bg-card">
-      <CardHeader className="text-center pb-2">
-        <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-          <Copy className="w-7 h-7 text-primary" />
-        </div>
-        <CardTitle className="text-2xl font-bold">Duplicar Conjuntos</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Preencha os dados abaixo para duplicar os conjuntos
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="pt-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="conjuntoId" className="text-sm font-medium">
-              ID do Conjunto
-            </Label>
-            <Input
-              id="conjuntoId"
-              type="text"
-              placeholder="Digite o ID do conjunto"
-              value={conjuntoId}
-              onChange={(e) => setConjuntoId(e.target.value)}
-              disabled={isLoading}
-              className="h-12 text-base"
-            />
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-muted/20">
+      <Card className="w-full max-w-lg shadow-xl border-2 bg-card">
+        <CardHeader className="text-center pb-2">
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="absolute left-4 top-4"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Voltar
+            </Button>
+          )}
+          <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <Copy className="w-7 h-7 text-primary" />
           </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="quantity" className="text-sm font-medium">
-              Quantidade de cópias
-            </Label>
-            <Input
-              id="quantity"
-              type="number"
-              min="1"
-              placeholder="Digite a quantidade"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              disabled={isLoading}
-              className="h-14 text-2xl font-bold text-center"
-            />
-            <div className="grid grid-cols-4 gap-2">
-              {PRESET_QUANTITIES.map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => handlePresetClick(preset)}
-                  disabled={isLoading}
-                  className={cn(
-                    "quantity-card",
-                    quantity === preset.toString() && "quantity-card-active"
-                  )}
-                >
-                  {preset}
-                </button>
-              ))}
+          <CardTitle className="text-2xl font-bold">Duplicar Conjuntos</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Preencha os dados abaixo para duplicar os conjuntos
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="conjuntoId" className="text-sm font-medium">
+                ID do Conjunto
+              </Label>
+              <Input
+                id="conjuntoId"
+                type="text"
+                placeholder="Digite o ID do conjunto"
+                value={conjuntoId}
+                onChange={(e) => setConjuntoId(e.target.value)}
+                disabled={isLoading}
+                className="h-12 text-base"
+              />
             </div>
-          </div>
 
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-12 text-base font-semibold"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Processando...
-              </>
-            ) : (
-              <>
-                <Copy className="mr-2 h-5 w-5" />
-                Duplicar Conjuntos
-              </>
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            <div className="space-y-3">
+              <Label htmlFor="quantity" className="text-sm font-medium">
+                Quantidade de cópias
+              </Label>
+              <Input
+                id="quantity"
+                type="number"
+                min="1"
+                placeholder="Digite a quantidade"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                disabled={isLoading}
+                className="h-14 text-2xl font-bold text-center"
+              />
+              <div className="grid grid-cols-4 gap-2">
+                {PRESET_QUANTITIES.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => handlePresetClick(preset)}
+                    disabled={isLoading}
+                    className={cn(
+                      "quantity-card",
+                      quantity === preset.toString() && "quantity-card-active"
+                    )}
+                  >
+                    {preset}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-12 text-base font-semibold"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Processando...
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-2 h-5 w-5" />
+                  Duplicar Conjuntos
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
-};
-
-export default WebhookForm;
+}
