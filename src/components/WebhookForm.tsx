@@ -56,27 +56,53 @@ const WebhookForm = () => {
         }),
       });
 
-      const result = await response.text();
+      const result = await response.json();
       
-      if (result.toLowerCase().includes("success") || response.ok) {
+      // Status 200: Sucesso total
+      if (result.status === 200) {
         toast({
           title: "Sucesso!",
-          description: result || "Conjuntos duplicados com sucesso.",
+          description: result.message,
         });
-        // Reset form
         setConjuntoId("");
         setQuantity("");
-      } else {
+      } 
+      // Status 206: Verificar se é parcial ou falha total
+      else if (result.status === 206) {
+        const { summary } = result;
+        
+        // Falha total (nenhum sucesso)
+        if (summary.success === 0) {
+          toast({
+            title: "Falha crítica",
+            description: result.message,
+            variant: "destructive",
+          });
+        } 
+        // Sucesso parcial (alguns criados, alguns falharam)
+        else {
+          toast({
+            title: "Atenção",
+            description: result.message,
+            variant: "warning",
+          });
+          // Reset form mesmo com sucesso parcial
+          setConjuntoId("");
+          setQuantity("");
+        }
+      }
+      // Fallback para outros status
+      else {
         toast({
-          title: "Falha",
-          description: result || "Ocorreu um erro ao duplicar os conjuntos.",
+          title: "Resposta inesperada",
+          description: result.message || "Verifique o resultado da operação.",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Webhook error:", error);
       toast({
-        title: "Erro",
+        title: "Erro de conexão",
         description: "Não foi possível conectar ao servidor. Tente novamente.",
         variant: "destructive",
       });
