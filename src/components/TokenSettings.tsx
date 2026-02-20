@@ -4,8 +4,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Key } from "lucide-react";
+import { Loader2, Save, Settings, Key, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 
 interface TokenSettingsProps {
   onTokenChange?: (token: string) => void;
@@ -13,9 +21,12 @@ interface TokenSettingsProps {
 
 export function TokenSettings({ onTokenChange }: TokenSettingsProps) {
   const { user } = useAuth();
+  const [open, setOpen] = useState(false);
   const [token, setToken] = useState("");
+  const [showToken, setShowToken] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasToken, setHasToken] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -34,6 +45,7 @@ export function TokenSettings({ onTokenChange }: TokenSettingsProps) {
       if (error && error.code !== "PGRST116") throw error;
       if (data?.token) {
         setToken(data.token);
+        setHasToken(true);
         onTokenChange?.(data.token);
       }
     } catch (error) {
@@ -62,11 +74,13 @@ export function TokenSettings({ onTokenChange }: TokenSettingsProps) {
 
       if (error) throw error;
 
+      setHasToken(true);
       onTokenChange?.(token.trim());
       toast({
         title: "Token salvo!",
         description: "Seu token foi salvo com sucesso.",
       });
+      setOpen(false);
     } catch (error) {
       console.error("Error saving token:", error);
       toast({
@@ -79,37 +93,76 @@ export function TokenSettings({ onTokenChange }: TokenSettingsProps) {
     }
   };
 
-  if (isLoading) return null;
-
   return (
-    <div className="flex items-end gap-2">
-      <div className="space-y-1 flex-1 max-w-xs">
-        <Label htmlFor="token" className="text-xs flex items-center gap-1">
-          <Key className="h-3 w-3" />
-          Token da API
-        </Label>
-        <Input
-          id="token"
-          type="password"
-          placeholder="Cole seu token aqui"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          disabled={isSaving}
-          className="h-9 text-sm"
-        />
-      </div>
+    <>
       <Button
+        variant="outline"
         size="sm"
-        onClick={handleSave}
-        disabled={isSaving}
-        className="h-9"
+        onClick={() => setOpen(true)}
+        className="h-9 gap-2"
+        disabled={isLoading}
       >
-        {isSaving ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Save className="h-4 w-4" />
+        <Settings className="h-4 w-4" />
+        <span className="hidden sm:block">Configurações</span>
+        {hasToken && (
+          <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
         )}
       </Button>
-    </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5 text-primary" />
+              Configurações
+            </DialogTitle>
+            <DialogDescription>
+              Insira o token da API do Facebook. Ele será enviado automaticamente em todas as requisições.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="token">Token de Acesso</Label>
+              <div className="relative">
+                <Input
+                  id="token"
+                  type={showToken ? "text" : "password"}
+                  placeholder="Cole seu token aqui..."
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  disabled={isSaving}
+                  className="h-11 pr-10 font-mono text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowToken(!showToken)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                O token é salvo de forma segura e vinculado à sua conta.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={isSaving}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} disabled={isSaving} className="gap-2">
+              {isSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              Salvar Token
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
