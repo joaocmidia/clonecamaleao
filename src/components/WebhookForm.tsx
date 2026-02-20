@@ -13,9 +13,10 @@ const WEBHOOK_URL = "https://editor.vexly.com.br/webhook/4c7618c6-fee9-44c3-8cd4
 interface WebhookFormProps {
   initialAdSetId?: string;
   onBack?: () => void;
+  token?: string;
 }
 
-export function WebhookForm({ initialAdSetId, onBack }: WebhookFormProps) {
+export function WebhookForm({ initialAdSetId, onBack, token = "" }: WebhookFormProps) {
   const [conjuntoId, setConjuntoId] = useState(initialAdSetId || "");
   const [quantity, setQuantity] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -64,6 +65,7 @@ export function WebhookForm({ initialAdSetId, onBack }: WebhookFormProps) {
           conjunto_id: conjuntoId,
           quantidade: parseInt(quantity),
           timestamp: new Date().toISOString(),
+          token: token,
         }),
       });
 
