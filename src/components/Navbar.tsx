@@ -15,25 +15,25 @@ export function Navbar({ onTokenChange }: NavbarProps) {
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <Layers className="h-5 w-5 text-primary" />
-          <span className="font-bold text-foreground">Vexly Ads</span>
+          <span className="font-bold text-foreground">Clone Camaleão
+
+          </span>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           <TokenSettings onTokenChange={onTokenChange} />
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground hidden sm:block">{user?.email}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={signOut}
-              className="h-9 gap-1"
-            >
+            <Button variant="ghost" size="sm"
+            onClick={signOut}
+            className="h-9 gap-1">
+
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:block">Sair</span>
             </Button>
           </div>
         </div>
       </div>
-    </header>
-  );
+    </header>);
+
 }
