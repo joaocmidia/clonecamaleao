@@ -26,9 +26,10 @@ interface Campaign {
 
 interface AccountSearchProps {
   onSelectAdSet: (adSetId: string) => void;
+  token?: string;
 }
 
-export function AccountSearch({ onSelectAdSet }: AccountSearchProps) {
+export function AccountSearch({ onSelectAdSet, token = "" }: AccountSearchProps) {
   const [accountId, setAccountId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -58,6 +59,7 @@ export function AccountSearch({ onSelectAdSet }: AccountSearchProps) {
         },
         body: JSON.stringify({
           account_id: accountId.trim(),
+          token: token,
         }),
       });
 

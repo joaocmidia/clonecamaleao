@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { AccountSearch } from "@/components/AccountSearch";
 import { WebhookForm } from "@/components/WebhookForm";
+import { Navbar } from "@/components/Navbar";
 
 const Index = () => {
   const [selectedAdSetId, setSelectedAdSetId] = useState<string | null>(null);
+  const [token, setToken] = useState("");
 
   const handleSelectAdSet = (adSetId: string) => {
     setSelectedAdSetId(adSetId);
@@ -14,11 +16,12 @@ const Index = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-background">
+      <Navbar onTokenChange={setToken} />
       {selectedAdSetId ? (
-        <WebhookForm initialAdSetId={selectedAdSetId} onBack={handleBack} />
+        <WebhookForm initialAdSetId={selectedAdSetId} onBack={handleBack} token={token} />
       ) : (
-        <AccountSearch onSelectAdSet={handleSelectAdSet} />
+        <AccountSearch onSelectAdSet={handleSelectAdSet} token={token} />
       )}
     </div>
   );
